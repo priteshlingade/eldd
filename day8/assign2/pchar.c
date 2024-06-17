@@ -137,6 +137,10 @@ static ssize_t pchar_write(struct file *pfile, const char *ubuf, size_t size, lo
 
 static long pchar_ioctl(struct file *pfile, unsigned int cmd, unsigned long param) {
     info_t info;
+    void *temp_buf;
+    size_t old_size, new_size;
+    int ret = 0;
+    
     switch (cmd)
     {
     case FIFO_CLEAR:
@@ -152,21 +156,60 @@ static long pchar_ioctl(struct file *pfile, unsigned int cmd, unsigned long para
         break;
     case FIFO_RESIZE:
         printk(KERN_INFO "%s: pchar_ioctl() resize fifo.\n", THIS_MODULE->name); 
-        // allocate temp buffer of fifo length - kmalloc(), kifo_len()
-		char tempbuf[kfifo_len(&buf)];
+        // Retrieve the new size from userspace
+      //  if (copy_from_user(&new_size, (size_t *)&param, sizeof(size_t))) {
+      //      ret = -EFAULT;
+       //     break;
+      //  }
+        
+        // Check if new size is valid
+        new_size = param;
+        printk(KERN_INFO " %ld the new size",new_size);
+        if (new_size <= 0) {
+            ret = -EINVAL;
+            break;
+        }
 
-        // copy fifo data into that buffer - kfifo_out()
-       		ret=kfifo_out(&buf,tempbuf,kfifo_len(&buf));
-	   		if(ret<0)
-			{
+        // Allocate temporary buffer to hold current data
+        temp_buf = kmalloc(kfifo_len(&buf), GFP_KERNEL);
+        if (!temp_buf) {
+            ret = -ENOMEM;
+            break;
+        }
 
-			}
-	   // release kfifo memory - kfifo_free()
-		   kfifo_free(&buf);
+        // Dequeue data from current kfifo to temp_buf
+        old_size = kfifo_len(&buf);
+        ret = kfifo_out(&buf, temp_buf, old_size);
+        if (ret != old_size) {
+            kfree(temp_buf);
+            ret = -EFAULT;
+            break;
+        }
 
-        // allocate kfifo with new size - kfifo_alloc() with param
-        // copy temp buffer data back to fifo - kfifo_in()
-        // release temp buffer - kfree()
+        // Free the old kfifo buffer
+        kfifo_free(&buf);
+
+        // Allocate new kfifo buffer with the new size
+        ret = kfifo_alloc(&buf, new_size, GFP_KERNEL);
+        if (ret) {
+            kfree(temp_buf);
+            ret = -ENOMEM;
+            break;
+        }
+
+        // Enqueue data from temp_buf to the new kfifo
+        ret = kfifo_in(&buf, temp_buf, old_size);
+        if (ret != old_size) {
+            kfifo_free(&buf);
+            kfree(temp_buf);
+            ret = -EFAULT;
+            break;
+        }
+
+        // Free the temporary buffer
+        kfree(temp_buf);
+        
+        printk(KERN_INFO "%s: pchar_ioctl() resized fifo to %zu bytes.\n", THIS_MODULE->name, new_size);
         break;
     default:
         printk(KERN_ERR "%s: pchar_ioctl() unsupported command.\n", THIS_MODULE->name); 
@@ -181,4 +224,3 @@ module_exit(pchar_exit);
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Nilesh Ghule <nilesh@sunbeaminfo.com>");
 MODULE_DESCRIPTION("Simple pchar driver with kfifo as device.");
-

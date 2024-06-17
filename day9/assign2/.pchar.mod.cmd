@@ -1,0 +1,1 @@
+cmd_/home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day9/assign2/pchar.mod := printf '%s\n'   pchar.o | awk '!x[$$0]++ { print("/home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day9/assign2/"$$0) }' > /home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day9/assign2/pchar.mod
