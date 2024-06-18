@@ -1,0 +1,1 @@
+cmd_/home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day10/assign1.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day10/assign1.ko /home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day10/assign1.o /home/pritesh/Desktop/sunbeam/eldd/assignment/eldd/day10/assign1.mod.o;  true

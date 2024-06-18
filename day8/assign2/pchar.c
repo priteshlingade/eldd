@@ -48,7 +48,7 @@ static __init int pchar_init(void) {
     minor = MINOR(devno);
     printk(KERN_INFO "%s: alloc_chrdev_region() allocated device number %d/%d.\n", THIS_MODULE->name, major, minor);
 
-    pclass = class_create(THIS_MODULE,"pchar_class");
+    pclass = class_create("pchar_class");
     if(IS_ERR(pclass)) {
         printk(KERN_ERR "%s: class_create() failed.\n", THIS_MODULE->name);
         ret = -1;

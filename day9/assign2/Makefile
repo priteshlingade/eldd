@@ -8,7 +8,8 @@ cross:
 	make ARCH=arm CROSS_COMPILE=arm-linux-gnueabihf- -C /home/pritesh/Desktop/linux/ M=`pwd` modules
 
 bb:
-	make cd /media/pritesh/BEAGLEBONE
+	cd ~
+#	cd /media/pritesh/BEAGLEBONE
 
 run:
 	make ssh debian@192.168.6.2
