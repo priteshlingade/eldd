@@ -1,5 +1,5 @@
 
-obj-m = pchar.o
+obj-m = gpio-led.o
 
 modules:
 	make -C /lib/modules/`uname -r`/build M=`pwd` modules

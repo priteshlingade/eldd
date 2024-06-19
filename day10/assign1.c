@@ -21,13 +21,6 @@ int sleep_duration = 10000;
 
 
 
-/*void mytimer_function(struct timer_list *ptimer)
-{
-	printk(KERN_INFO " %s : mytimer_function : count = %d\n", THIS_MODULE->name, count);
-	count++;
-//	mod_timer(&mytimer, jiffies + ticks);
-	enable_keyboard();
-}*/
 
 static void disable_keyboard(void)
 {
